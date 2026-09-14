@@ -236,7 +236,7 @@
 <div class="lead">
   <h2>このページがあるので、メモは取らなくて大丈夫です</h2>
   <p>講演でお見せした手順も、AIへの頼み方の文例も、<strong>全部このページに置いてあります</strong>。画面を追いかけるより、「うちだとどうかな」と考えることに40分を使ってください。</p>
-  <p style="margin-bottom:0">お見せする実演2本は、どちらも御市ではそのまま動きません。ですので、このページには<strong>「枚方でやるなら」のほうを、そのままコピーして使える形で</strong>置いています。</p>
+  <p style="margin-bottom:0">所見のほう（実演1）は、御市でもノートブックがお使いになれると伺いました。<strong>道具は同じです。</strong>差がつく一か所も、フォーム集計のほう（実演2・GASなので御市では動きません）で持ち帰っていただく「発注の仕方」も、<strong>そのままコピーして使える形で</strong>ここに置いてあります。</p>
 </div>
 
 <section class="step">
@@ -276,14 +276,35 @@
     <pre><code>この資料を、ギャル語で要約してください。内容は変えず、言い方だけ全部ギャルにしてください。</code></pre>
   </div>
 
+  <div class="note" style="background:var(--accent-soft);border-color:var(--accent);color:var(--ink)">
+    <strong>枚方の先生には、もっといい「最初の1個」があります。</strong><br>
+    <strong>市のセキュリティポリシーのPDF</strong>です。公開文書で、個人情報が入っていなくて、失敗しても誰も困らない。条件を全部満たします。しかも読めた瞬間に、<strong>自分の仕事の線引きが自分でできるようになります</strong>。頼み方はこの下に置きました。
+  </div>
+
+  <div class="codewrap">
+    <div class="codebar"><span class="fname">枚方版の最初の1個（ポリシーPDFを添付して）</span><button class="copy-btn">コピー</button></div>
+    <pre><code>添付した「枚方市立学校情報セキュリティポリシー」を読んでください。
+
+1　教職員が生成AIを使うときに守ることを、箇条書きにしてください。
+　　それぞれに、根拠になっている条番号を付けてください。
+
+2　次の仕事は、巻末の別表2でいう分類I〜IVのどれに当たりますか。
+　　・通知表の所見を書くこと
+　　・学習の記録（ワークシートや振り返り）をまとめること
+　　根拠になっている行を、そのまま引用してください。
+
+3　最後に、わたしが読み違えそうなところを1つだけ教えてください。</code></pre>
+  </div>
+
   <div class="note">
     <strong>要約は、原本の代わりにはなりません。</strong>固有名詞や数字を取り違えることがあります。要約は<strong>入口を軽くする道具</strong>です。軽くなったら、必ず原本に戻ってください。根拠に使うのは原本のほうです。
   </div>
 </section>
 
 <section class="step">
-  <h2>実演1の「枚方でやるなら」——所見の叩き台を、チャット型のAIだけで</h2>
-  <p class="what">ノートブック機能と、ふだんお使いのチャット型AIとの違いは<strong>1点だけ</strong>です。資料を置いておけるか、毎回貼るか。考え方は1ミリも変わりません。下の3つを、この順番で使ってください。</p>
+  <h2>実演1——所見の叩き台。差がつくのは「文体仕様書」だけです</h2>
+  <p class="what">ノートブックは御市でもお使いになれると伺いました。<strong>道具は同じです。</strong>差がつくのは、①の「文体仕様書」を作ってあるかどうか、そこ一か所だけだと思っています。下の3つを、この順番で使ってください。</p>
+  <p class="what"><strong>Copilotなどのチャット型AIでも、まったく同じ手順でできます。</strong>増える手間は「毎回①②を貼る」だけです。</p>
 
   <div class="codewrap">
     <div class="codebar"><span class="fname">① 文体仕様書をつくる（1回だけ）</span><button class="copy-btn">コピー</button></div>
@@ -334,12 +355,27 @@
   </div>
 
   <div class="note">
-    <strong>子どもの記録は、出席番号か仮名にしてから貼ってください。</strong>実名は渡しません。そして、<strong>御市のルールが前多の学校のやり方より先です</strong>。業務利用が認められているサービスを、学校のアカウントで。迷ったら管理職に確認してからにしてください。<br>
-    出てきたものは<strong>叩き台</strong>です。最終形にするのは人間の仕事——「判断は、渡さない」のほうに入ります。
+    <strong>子どもの記録は、出席番号か管理番号に置き換えてから貼ってください。</strong><br>
+    御市のポリシーには、こう書かれています。<br>
+    <strong>「個人情報が機械学習に利用される場合には、当該個人情報の入力禁止」</strong>（枚方市立学校情報セキュリティポリシー 11.4(4)）<br>
+    「入れるな」ではなく「<strong>機械学習に使われるなら</strong>入れるな」です。ですので外し方は2つあって、両方やれば二重に外れます。<br>
+    　1　学習に使われない使い方をする（認められたサービスを、学校のアカウントで）<br>
+    　2　そもそも個人情報にしない（氏名 → 管理番号・出席番号）<br>
+    <span style="display:inline-block;margin-top:6px">巻末の別表2も、いちどご覧ください。<strong>分類III</strong>の「児童・生徒の学習記録（ワークシート、レポート、作品、振り返り等）」はクラウドで扱えるほうに、<strong>分類II</strong>の「通知表・評定一覧表」は教育内部系（校外持ち出し禁止）のほうに入っています。<strong>所見の"材料"と"結果"は、別の分類です。</strong></span><br>
+    <span style="display:inline-block;margin-top:6px">とはいえ、これは市外の人間の読み方です。<strong>最終的に判断されるのは校長先生（ポリシー上の校内情報セキュリティ責任者）です。</strong>迷ったら必ずご確認ください。</span><br>
+    <span style="display:inline-block;margin-top:6px">出てきたものは<strong>叩き台</strong>です。最終形にするのは人間の仕事——「判断は、渡さない」のほうに入ります。</span>
   </div>
 
   <h3 style="font-size:1.05rem;margin:26px 0 8px">その「毎回貼るのがめんどくさい」が、合図です</h3>
-  <p class="what">3回くらい同じことを頼んだあたりで、貼るのが面倒になります。そうしたら、①②で保存した文章を<strong>カスタム指示に移してください</strong>。Gemini の「Gem」、ChatGPT の「GPTs」、Copilot の「エージェント」——呼び方は違いますが、同じ役割の機能です。そこまで行けば、ノートブックとほぼ同じ状態になります。</p>
+  <p class="what">3回くらい同じことを頼んだあたりで、貼るのが面倒になります。そうしたら、①②で保存した文章を<strong>カスタム指示に移してください</strong>。御市では <strong>Gemini の「Gem」</strong>も <strong>Copilot の「エージェント」</strong>も使えると伺いました。呼び方は違いますが、同じ役割の機能です。</p>
+  <div class="note">
+    <strong>ここでつまずく人が多いはずです。Gem・エージェントは、ブラウザ版でしか作れません。</strong><br>
+    ふだんiPadのアプリで生成AIを使っていると、作る画面が出てきません。<strong>作るときだけ、ブラウザで開いてください。</strong>いちど作ってしまえば、アプリからでも使えます。
+  </div>
+  <div class="note" style="background:var(--panel);border-color:var(--line);color:var(--ink)">
+    <strong>御市で使えると伺っているもの</strong>（2026年9月時点・大脇班長より）<br>
+    <strong>Copilot</strong>（市の推奨）／<strong>Gemini</strong>（アカデミック利用可）／<strong>Geminiノートブック</strong>／<strong>Canva AI</strong>。カスタム指示は Gem・エージェントとも使用可（作成はブラウザ版のみ）。
+  </div>
   <p class="what" style="margin-bottom:0">これが、自分専用AIの作り方の全部です。<strong>白紙と戦ってプロンプトを設計しようとすると止まります。</strong>チャットで往復して、うまくいったやり方が固まってから、それをカスタム指示に翻訳する。順番が逆だと、作れません。</p>
 </section>
 
