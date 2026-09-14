@@ -407,6 +407,227 @@
 </section>
 
 <section class="step">
+  <h2>家で試したい方へ——実演2のコードを置いておきます</h2>
+  <p class="what">「動いているところは見たけれど、自分でもやってみたい」という方向けです。<strong>御市の校務用PCでは動きません。</strong>ご自身の個人のGoogleアカウントで試してください。学校の環境で使うときは、必ず先に御市のルールをご確認ください。</p>
+
+  <h3 style="font-size:1.05rem;margin:26px 0 8px">① わたしが書いたのは、これだけです（発注文）</h3>
+  <p class="what">当日「お見せしたいのはコードではなく発注文です」と申し上げたのが、この文章です。AIに貼るのはこれで、返ってくるのが②です。</p>
+  <div class="codewrap order">
+    <div class="codebar"><span class="fname">AIへの発注文（第5章）</span><button class="copy-btn">コピー</button></div>
+    <pre><code>第4章から使っているスプレッドシートの「フォームの回答 1」シートを集計するGASを書いてください。質問は「出席番号」「今日の授業はどうだった？」「先生と話したいことは？」の3つです。
+今日送信された回答だけを対象に、①回答の件数 ②「今日の授業はどうだった？」の選択肢ごとの件数（0件の選択肢も表示）③「先生と話したいことは？」が「ある」だった出席番号 を、1通のメールにまとめて自分宛に送ってください。回答の件数は、件名に入れてください。
+今日の回答が1件もない日は、何も送らないでください。
+シートが見つからないときは、日本語のエラーメッセージで教えてください。
+メールアドレスは私が入力しなくても動くようにしてください。</code></pre>
+  </div>
+
+  <h3 style="font-size:1.05rem;margin:26px 0 8px">② 返ってきたコード</h3>
+  <p class="what">『コードを1文字も書かない校務自動化』第5章に載せているものです。<strong>第4章で作った振り返りフォームと、その回答スプレッドシートがある前提</strong>で動きます。スプレッドシートを開いて「拡張機能 → Apps Script」に貼り、<code>sendReflectionDigest</code> を実行してください。夕方に自動で届けたいときは、時計マークから「時間主導型・日付ベース・午後4時〜5時」のトリガーを1本足します。</p>
+  <div class="note">選択肢の文言を変えている方は、コード冒頭の <code>CHOICES</code> も合わせてください。列を探す鍵は<strong>シート1行目の見出し＝フォームの質問文</strong>です。運用が始まったフォームの文言は動かさないのが安全です。</div>
+  <div class="codewrap">
+    <div class="codebar"><span class="fname">第5章.gs</span><button class="copy-btn">コピー</button></div>
+    <pre><code>const CHOICES = [&#x27;4 よくわかった&#x27;, &#x27;3 だいたいわかった&#x27;,
+                 &#x27;2 少しむずかしかった&#x27;, &#x27;1 むずかしかった&#x27;];
+
+function sendReflectionDigest() {
+  const sheet = SpreadsheetApp.getActiveSpreadsheet()
+    .getSheetByName(&#x27;フォームの回答 1&#x27;);
+  if (!sheet) throw new Error(&#x27;「フォームの回答 1」シートが見つかりません。タブ名を確認してください。&#x27;);
+
+  const rows = sheet.getDataRange().getValues();
+  const header = rows[0];
+  const colNumber = header.indexOf(&#x27;出席番号&#x27;);
+  const colScore = header.indexOf(&#x27;今日の授業はどうだった？&#x27;);
+  const colTalk = header.indexOf(&#x27;先生と話したいことは？&#x27;);
+  if (colNumber === -1 || colScore === -1 || colTalk === -1) {
+    throw new Error(&#x27;見出し（質問文）が見つかりません。フォームの質問文を変えていないか確認してください。&#x27;);
+  }
+
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+  const ONE_DAY_MS = 24 * 60 * 60 * 1000;
+
+  const counts = {};
+  const talkNumbers = [];
+  let total = 0;
+
+  rows.slice(1).forEach(row =&gt; {
+    const stamp = row[0];
+    if (!(stamp instanceof Date)) return;
+    const d = new Date(stamp);
+    d.setHours(0, 0, 0, 0);
+    if (Math.round((d - today) / ONE_DAY_MS) !== 0) return;
+
+    total++;
+    counts[row[colScore]] = (counts[row[colScore]] || 0) + 1;
+    if (row[colTalk] === &#x27;ある&#x27;) talkNumbers.push(row[colNumber]);
+  });
+
+  if (total === 0) return;
+
+  const lines = CHOICES.map(c =&gt; `・${c}：${counts[c] || 0}件`);
+  let body = &#x27;今日の授業はどうだった？\n&#x27; + lines.join(&#x27;\n&#x27;);
+  if (talkNumbers.length &gt; 0) {
+    body += `\n\n先生と話したい：${talkNumbers.join(&#x27;番、&#x27;)}番`;
+  }
+  MailApp.sendEmail(Session.getActiveUser().getEmail(),
+    `【振り返りダイジェスト】${total}件`, body);
+}</code></pre>
+  </div>
+
+  <h3 style="font-size:1.05rem;margin:26px 0 8px">③ フォームから丸ごと作るなら（当日のデモはこれです）</h3>
+  <p class="what">第4章のフォームをお持ちでない方は、こちらを使ってください。<code>script.new</code> で新しいプロジェクトを作って丸ごと貼り、<strong><code>setupDemo</code> を1回実行するだけ</strong>です。フォーム・回答シート・<strong>今日の日付のダミー回答18件</strong>・ダイジェストメール1通・毎日16時のトリガーが、一度にできます。当日お見せした画面は、これで作ったものです。</p>
+  <div class="note">ダミーの回答18件が入るので、<strong>実在の子どものデータは1件も使いません</strong>。試したあとは、できたフォームとスプレッドシートを削除すれば元どおりです。</div>
+  <div class="codewrap">
+    <div class="codebar"><span class="fname">実演2デモ一式.gs</span><button class="copy-btn">コピー</button></div>
+    <pre><code>/**
+ * 【枚方 9/16 実演2】デモ一式セットアップ
+ *
+ * 実行するのは setupDemo ひとつだけ。押すと、下の4つが一度にできます。
+ *   1. 振り返りフォーム（質問3つ。文言は『コードを1文字も書かない校務自動化』第5章と同じ）
+ *   2. 回答スプレッドシート（「フォームの回答 1」シート）
+ *   3. 今日の日付のダミー回答18件（実在の子どもは1人も入っていません）
+ *   4. 【振り返りダイジェスト】メールが自分宛に1通
+ *  ＋ 毎日16時のトリガーも仕掛けます（当日「これが1本動いているだけです」と見せる用）
+ *
+ * 【置き場所】script.new で新しいプロジェクトを作って、これを丸ごと貼る。
+ * 　　　　　　▶実行を押すのは setupDemo です。初回は承認画面が出ます。
+ * 【どのアカウントで】人前に出す画面なので、デモ用アカウント推奨
+ * 　　　　　　（gtrainerdemo.mikire.tokyo。実在の児童データが絶対に映らない場所で）。
+ *
+ * ⚠️ 本（第5章）のコードは `SpreadsheetApp.getActiveSpreadsheet()` で始まります。
+ * 　 あれはスプレッドシートの中にコードが入っている前提だからです。
+ * 　 ここは単体のプロジェクトなので、作ったシートのIDを覚えさせています。
+ * 　 当日画面に出すのは「発注文」であってコードではないので、この違いは表に出ません。
+ */
+
+// ▼ 第5章と同じ選択肢
+const CHOICES = [&#x27;4 よくわかった&#x27;, &#x27;3 だいたいわかった&#x27;,
+                 &#x27;2 少しむずかしかった&#x27;, &#x27;1 むずかしかった&#x27;];
+
+const Q_NUMBER = &#x27;出席番号&#x27;;
+const Q_SCORE  = &#x27;今日の授業はどうだった？&#x27;;
+const Q_TALK   = &#x27;先生と話したいことは？&#x27;;
+const SHEET_NAME = &#x27;フォームの回答 1&#x27;;
+const PROP_KEY = &#x27;DEMO_SS_ID&#x27;;
+
+/** ★これを実行する。1回押すだけ。 */
+function setupDemo() {
+  // 1 フォームを作る
+  const form = FormApp.create(&#x27;振り返り（枚方デモ 2026-09-16）&#x27;);
+  form.setDescription(&#x27;今日の授業の振り返りです。1分で終わります。&#x27;);
+  form.addTextItem().setTitle(Q_NUMBER).setRequired(true);
+  form.addMultipleChoiceItem().setTitle(Q_SCORE).setChoiceValues(CHOICES).setRequired(true);
+  form.addMultipleChoiceItem().setTitle(Q_TALK).setChoiceValues([&#x27;ある&#x27;, &#x27;ない&#x27;]).setRequired(true);
+
+  // 2 回答先のスプレッドシートを作って結びつける
+  const ss = SpreadsheetApp.create(&#x27;振り返りの回答（枚方デモ）&#x27;);
+  form.setDestination(FormApp.DestinationType.SPREADSHEET, ss.getId());
+  PropertiesService.getScriptProperties().setProperty(PROP_KEY, ss.getId());
+
+  // 3 ダミー回答18件（demo表20行以内。→ 会場のプロジェクタで読める行数）
+  const dummy = [
+    [1, 0, &#x27;ない&#x27;], [2, 0, &#x27;ない&#x27;], [3, 1, &#x27;ない&#x27;], [4, 0, &#x27;ない&#x27;],
+    [5, 1, &#x27;ない&#x27;], [6, 0, &#x27;ない&#x27;], [7, 2, &#x27;ない&#x27;], [8, 1, &#x27;ない&#x27;],
+    [9, 0, &#x27;ない&#x27;], [10, 1, &#x27;ない&#x27;], [11, 0, &#x27;ない&#x27;], [12, 2, &#x27;ない&#x27;],
+    [13, 1, &#x27;ない&#x27;], [14, 0, &#x27;ない&#x27;], [15, 3, &#x27;ある&#x27;], [16, 1, &#x27;ない&#x27;],
+    [17, 2, &#x27;ある&#x27;], [18, 0, &#x27;ない&#x27;],
+  ];
+  const items = form.getItems();
+  const numberItem = items[0].asTextItem();
+  const scoreItem  = items[1].asMultipleChoiceItem();
+  const talkItem   = items[2].asMultipleChoiceItem();
+  dummy.forEach(function (d) {
+    form.createResponse()
+      .withItemResponse(numberItem.createResponse(String(d[0])))
+      .withItemResponse(scoreItem.createResponse(CHOICES[d[1]]))
+      .withItemResponse(talkItem.createResponse(d[2]))
+      .submit();
+  });
+  SpreadsheetApp.flush();
+  Utilities.sleep(3000);
+
+  // シート名が英語（Form Responses 1）で作られることがあるので揃える
+  const sheets = SpreadsheetApp.openById(ss.getId()).getSheets();
+  if (!sheets.some(function (s) { return s.getName() === SHEET_NAME; })) {
+    sheets[0].setName(SHEET_NAME);
+  }
+
+  // 4 ダイジェストを1通送る（当日はこのメールを画面に出す）
+  sendReflectionDigest();
+
+  // ＋ 毎日16時のトリガー（すでにあれば作らない）
+  const exists = ScriptApp.getProjectTriggers().some(function (t) {
+    return t.getHandlerFunction() === &#x27;sendReflectionDigest&#x27;;
+  });
+  if (!exists) {
+    ScriptApp.newTrigger(&#x27;sendReflectionDigest&#x27;)
+      .timeBased().atHour(16).everyDays(1).create();
+  }
+
+  Logger.log(&#x27;--- 当日ひらくURL（この3行をメモしておく）---&#x27;);
+  Logger.log(&#x27;フォーム（回答画面）: &#x27; + form.getPublishedUrl());
+  Logger.log(&#x27;回答シート: &#x27; + ss.getUrl());
+  Logger.log(&#x27;メール: Gmailで「振り返りダイジェスト」を検索&#x27;);
+}
+
+/**
+ * 第5章のコード。中身は本のまま（シートの取り方だけ、上の注記のとおり変えています）。
+ */
+function sendReflectionDigest() {
+  const id = PropertiesService.getScriptProperties().getProperty(PROP_KEY);
+  const book = SpreadsheetApp.getActiveSpreadsheet();   // 本ではこれ1行
+  const ss = book || SpreadsheetApp.openById(id);
+  const sheet = ss.getSheetByName(SHEET_NAME);
+  if (!sheet) throw new Error(&#x27;「&#x27; + SHEET_NAME + &#x27;」シートが見つかりません。タブ名を確認してください。&#x27;);
+
+  const rows = sheet.getDataRange().getValues();
+  const header = rows[0];
+  const colNumber = header.indexOf(Q_NUMBER);
+  const colScore = header.indexOf(Q_SCORE);
+  const colTalk = header.indexOf(Q_TALK);
+  if (colNumber === -1 || colScore === -1 || colTalk === -1) {
+    throw new Error(&#x27;見出し（質問文）が見つかりません。フォームの質問文を変えていないか確認してください。&#x27;);
+  }
+
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+  const ONE_DAY_MS = 24 * 60 * 60 * 1000;
+
+  const counts = {};
+  const talkNumbers = [];
+  let total = 0;
+
+  rows.slice(1).forEach(function (row) {
+    const stamp = row[0];
+    if (!(stamp instanceof Date)) return;
+    const d = new Date(stamp);
+    d.setHours(0, 0, 0, 0);
+    if (Math.round((d - today) / ONE_DAY_MS) !== 0) return;
+
+    total++;
+    counts[row[colScore]] = (counts[row[colScore]] || 0) + 1;
+    if (row[colTalk] === &#x27;ある&#x27;) talkNumbers.push(row[colNumber]);
+  });
+
+  if (total === 0) return;
+
+  const lines = CHOICES.map(function (c) { return &#x27;・&#x27; + c + &#x27;：&#x27; + (counts[c] || 0) + &#x27;件&#x27;; });
+  let body = Q_SCORE + &#x27;\n&#x27; + lines.join(&#x27;\n&#x27;);
+  if (talkNumbers.length &gt; 0) {
+    body += &#x27;\n\n先生と話したい：&#x27; + talkNumbers.join(&#x27;番、&#x27;) + &#x27;番&#x27;;
+  }
+  MailApp.sendEmail(Session.getActiveUser().getEmail(),
+    &#x27;【振り返りダイジェスト】&#x27; + total + &#x27;件&#x27;, body);
+}</code></pre>
+  </div>
+
+  <h3 style="font-size:1.05rem;margin:26px 0 8px">④ 残りの章のコードも、全部置いてあります</h3>
+  <p class="what">本に出てくる発注文とコードは、全7章ぶんを1枚のページにまとめてあります。本を読んでいない方でも、発注文を読むだけで「何を頼めばこうなるのか」は伝わると思います。</p>
+  <p style="margin:0 0 6px"><a class="btnlink ghost" href="https://johnnymaeta.github.io/gas/" target="_blank" rel="noopener">『コードを1文字も書かない校務自動化』コード掲載ページ</a></p>
+</section>
+
+<section class="step">
   <h2>管理職に説明するための1枚</h2>
   <p class="what">推進役の先生がいちばん困るのは、操作ではなく「上に説明する言葉がない」ところだと思っています。説得の言葉ではなく、<strong>引用だけを並べた1枚</strong>を置いておきます。「これは前多が言っていることではなく、国が公式に決めていることです」と言える形にしてあります。</p>
   <p style="margin:0 0 6px"><a class="btnlink" href="kanrishoku.html">管理職に見せる1枚を開く</a></p>
