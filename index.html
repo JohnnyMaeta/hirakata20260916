@@ -1,0 +1,450 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AIを最強の裏方にする｜枚方市 業務改善班 おみやげページ</title>
+<style>
+  :root {
+    --bg: #f7f7f5;
+    --panel: #ffffff;
+    --ink: #22242a;
+    --muted: #6b6f76;
+    --line: #e4e4e0;
+    --accent: #2f5f8f;
+    --accent-soft: #e7edf4;
+    --code-bg: #1e2127;
+    --code-ink: #e6e6e6;
+    --note-bg: #fff8e6;
+    --note-line: #e8d48a;
+    --note-ink: #6b5310;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --bg: #16181d;
+      --panel: #1e2127;
+      --ink: #e7e8ea;
+      --muted: #9aa0a8;
+      --line: #313640;
+      --accent: #6b9fd4;
+      --accent-soft: #222a34;
+      --code-bg: #12141a;
+      --code-ink: #e6e6e6;
+      --note-bg: #2a2617;
+      --note-line: #5c5024;
+      --note-ink: #e0cf90;
+    }
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    background: var(--bg);
+    color: var(--ink);
+    font-family: -apple-system, BlinkMacSystemFont, "Hiragino Sans", "Noto Sans JP", "Yu Gothic", sans-serif;
+    line-height: 1.75;
+    -webkit-font-smoothing: antialiased;
+  }
+  .wrap { max-width: 820px; margin: 0 auto; padding: 40px 20px 80px; }
+  header.page {
+    border-bottom: 2px solid var(--accent);
+    padding-bottom: 20px;
+    margin-bottom: 8px;
+  }
+  header.page h1 { font-size: 1.6rem; margin: 0 0 6px; letter-spacing: .01em; }
+  header.page .sub { color: var(--muted); font-size: .95rem; margin: 0; }
+  .lead {
+    background: var(--panel);
+    border: 1px solid var(--line);
+    border-radius: 12px;
+    padding: 18px 20px;
+    margin: 24px 0 32px;
+    font-size: .95rem;
+  }
+  .lead h2 { font-size: 1rem; margin: 0 0 8px; }
+  section.step { margin-bottom: 40px; }
+  section.step > h2 {
+    font-size: 1.25rem;
+    border-left: 5px solid var(--accent);
+    padding-left: 12px;
+    margin: 0 0 10px;
+  }
+  .what { color: var(--muted); font-size: .93rem; margin: 0 0 12px; }
+  .note {
+    background: var(--note-bg);
+    border: 1px solid var(--note-line);
+    color: var(--note-ink);
+    border-radius: 8px;
+    padding: 10px 14px;
+    font-size: .86rem;
+    margin: 12px 0;
+  }
+  .note code { background: rgba(0,0,0,.12); padding: 1px 5px; border-radius: 4px; }
+  .codewrap { position: relative; border-radius: 10px; overflow: hidden; border: 1px solid var(--line); margin: 14px 0; }
+  .codebar {
+    display: flex; justify-content: space-between; align-items: center;
+    background: var(--code-bg);
+    padding: 8px 12px;
+    border-bottom: 1px solid rgba(255,255,255,.08);
+  }
+  .codebar .fname { color: #9aa7b8; font-size: .78rem; font-family: "SF Mono", Menlo, Consolas, monospace; }
+  .copy-btn {
+    background: var(--accent);
+    color: #fff;
+    border: none;
+    border-radius: 6px;
+    padding: 5px 14px;
+    font-size: .8rem;
+    cursor: pointer;
+    transition: background .15s, transform .1s;
+    white-space: nowrap;
+  }
+  .copy-btn:hover { filter: brightness(1.08); }
+  .copy-btn:active { transform: scale(.96); }
+  .copy-btn.done { background: #3a6a8a; }
+  pre {
+    margin: 0;
+    background: var(--code-bg);
+    color: var(--code-ink);
+    padding: 16px;
+    overflow-x: auto;
+    font-size: .82rem;
+    line-height: 1.6;
+    max-height: 560px;
+  }
+  pre code { font-family: "SF Mono", Menlo, Consolas, "Courier New", monospace; white-space: pre; }
+  .codewrap.order pre { background: #263043; max-height: none; }
+  .codewrap.order .codebar { background: #263043; }
+  .vidcards {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+    gap: 16px;
+    margin: 16px 0;
+  }
+  .vidcard {
+    display: block;
+    text-decoration: none;
+    color: inherit;
+    background: var(--panel);
+    border: 1px solid var(--line);
+    border-radius: 10px;
+    overflow: hidden;
+    transition: border-color .15s, transform .1s;
+  }
+  .vidcard:hover { border-color: var(--accent); transform: translateY(-2px); }
+  .vidcard .thumb {
+    position: relative;
+    width: 100%;
+    aspect-ratio: 16 / 9;
+    background: #000;
+    overflow: hidden;
+  }
+  .vidcard .thumb img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+  }
+  .vidcard .thumb::after {
+    content: "";
+    position: absolute;
+    left: 50%; top: 50%;
+    width: 54px; height: 38px;
+    margin: -19px 0 0 -27px;
+    background: rgba(0,0,0,.65);
+    border-radius: 9px;
+    box-shadow: inset 0 0 0 1px rgba(255,255,255,.2);
+  }
+  .vidcard .thumb::before {
+    content: "";
+    position: absolute;
+    left: 50%; top: 50%;
+    margin: -8px 0 0 -5px;
+    border-style: solid;
+    border-width: 8px 0 8px 14px;
+    border-color: transparent transparent transparent #fff;
+    z-index: 1;
+  }
+  .vidcard .meta { padding: 12px 14px 14px; }
+  .vidcard .vtitle { font-size: .92rem; font-weight: 600; line-height: 1.5; margin: 0 0 4px; }
+  .vidcard .vsub { font-size: .82rem; color: var(--muted); margin: 0; }
+  .video {
+    position: relative;
+    width: 100%;
+    aspect-ratio: 16 / 9;
+    border-radius: 10px;
+    overflow: hidden;
+    border: 1px solid var(--line);
+    background: #000;
+    margin: 14px 0;
+  }
+  .video iframe {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    border: 0;
+  }
+  .btnlink {
+    display: inline-block;
+    background: var(--accent);
+    color: #fff;
+    text-decoration: none;
+    border-radius: 8px;
+    padding: 10px 20px;
+    font-size: .95rem;
+    margin: 6px 0;
+  }
+  .btnlink:hover { filter: brightness(1.08); }
+  .btnlink.ghost {
+    background: transparent;
+    color: var(--accent);
+    border: 1px solid var(--accent);
+  }
+  ol.steps { padding-left: 1.3em; }
+  ol.steps li { margin: 10px 0; }
+  ul.checks { padding-left: 1.3em; }
+  ul.checks li { margin: 10px 0; }
+  .cta {
+    background: var(--accent-soft);
+    border-radius: 12px;
+    padding: 18px 20px;
+    margin-top: 40px;
+    font-size: .95rem;
+  }
+  .cta strong { color: var(--accent); }
+  footer.page {
+    margin-top: 60px;
+    padding-top: 24px;
+    border-top: 1px solid var(--line);
+    color: var(--muted);
+    font-size: .86rem;
+  }
+  @media (max-width: 600px) {
+    .wrap { padding: 24px 14px 60px; }
+    header.page h1 { font-size: 1.3rem; }
+    pre { font-size: .76rem; }
+  }
+</style></head>
+<body>
+<div class="wrap">
+
+<header class="page">
+  <h1>AIを最強の裏方にする｜おみやげページ</h1>
+  <p class="sub">枚方市教育研究会 業務改善班 オンライン講演（2026年9月16日）参加者用ページ／前多昌顕</p>
+</header>
+
+<div class="lead">
+  <h2>このページがあるので、メモは取らなくて大丈夫です</h2>
+  <p>講演でお見せした手順も、AIへの頼み方の文例も、<strong>全部このページに置いてあります</strong>。画面を追いかけるより、「うちだとどうかな」と考えることに40分を使ってください。</p>
+  <p style="margin-bottom:0">お見せする実演2本は、どちらも御市ではそのまま動きません。ですので、このページには<strong>「枚方でやるなら」のほうを、そのままコピーして使える形で</strong>置いています。</p>
+</div>
+
+<section class="step">
+  <h2>まず、今日の3行</h2>
+  <p class="what">職員の先生方に示すなら、これで足ります。判定に迷う仕事が来たときの問いは、1つだけです。</p>
+  <div class="note" style="font-size:1rem">
+    <strong>作業は、渡す。　練習は、渡さない。　判断は、渡さない。</strong><br>
+    迷ったときの問い ——「これは作業か、練習か、判断か」
+  </div>
+  <ul class="checks">
+    <li><strong>作業</strong>＝繰り返しで、誰がやっても同じ結果になるもの（集計・転記・整形・要約・下書き）→ 渡す</li>
+    <li><strong>練習</strong>＝その人が伸びるためにやっているもの（子どもの学習、若手が経験を積む工程）→ 渡さない</li>
+    <li><strong>判断</strong>＝責任が発生するもの（評定、生徒指導の決定、保護者への回答の最終形）→ 渡さない</li>
+  </ul>
+  <p class="what" style="margin-bottom:0">3つに分けられない仕事は、たいてい<strong>まだ分解されていないだけ</strong>です。分解すると、中に作業が混じっています。</p>
+</section>
+
+<section class="step">
+  <h2>明日やる「最初の1個」</h2>
+  <p class="what">学校経営方針のPDFを1本、AIに放り込んで要約させる。それだけです。自分の文書で、個人情報がなくて、失敗しても誰も困らなくて、良し悪しを自分で判定できる。だからここから始めます。</p>
+
+  <div class="codewrap">
+    <div class="codebar"><span class="fname">最初の1個（そのまま貼ってください）</span><button class="copy-btn">コピー</button></div>
+    <pre><code>この学校経営方針を、職員会議で口頭説明するつもりで要約してください。
+
+・全体で400字以内
+・「今年、何を変えるのか」がわかる形で
+・学年主任に伝えるときに使える言い方で
+
+そのあとに、「この方針から考えると、今年やめてもいい仕事」を3つ挙げてください。</code></pre>
+  </div>
+
+  <p class="what"><strong>もうひとつ。読めない資料を「読める資料」にするのではなく、「読む気にする」やり方です。</strong></p>
+
+  <div class="codewrap">
+    <div class="codebar"><span class="fname">ギャル語要約（つかみに強い）</span><button class="copy-btn">コピー</button></div>
+    <pre><code>この資料を、ギャル語で要約してください。内容は変えず、言い方だけ全部ギャルにしてください。</code></pre>
+  </div>
+
+  <div class="note">
+    <strong>要約は、原本の代わりにはなりません。</strong>固有名詞や数字を取り違えることがあります。要約は<strong>入口を軽くする道具</strong>です。軽くなったら、必ず原本に戻ってください。根拠に使うのは原本のほうです。
+  </div>
+</section>
+
+<section class="step">
+  <h2>実演1の「枚方でやるなら」——所見の叩き台を、チャット型のAIだけで</h2>
+  <p class="what">ノートブック機能と、ふだんお使いのチャット型AIとの違いは<strong>1点だけ</strong>です。資料を置いておけるか、毎回貼るか。考え方は1ミリも変わりません。下の3つを、この順番で使ってください。</p>
+
+  <div class="codewrap">
+    <div class="codebar"><span class="fname">① 文体仕様書をつくる（1回だけ）</span><button class="copy-btn">コピー</button></div>
+    <pre><code>これから、私が過去に書いた通知表の所見をいくつか貼ります。
+読んだうえで、「私の文体を再現するための仕様書」を作ってください。
+
+・よく使う言い回し、文の長さ、句読点の打ち方
+・ほめ方の型（どこを、どういう順番でほめているか）
+・使っていない言葉（避けている表現）
+
+仕様書は、別のAIに読ませてもそのまま使える形にしてください。
+
+---（ここに過去の所見を5〜10人分貼る。名前は消しておく）---</code></pre>
+  </div>
+  <p class="what">出てきた文章は、メモ帳やドキュメントに<strong>保存しておきます</strong>。これが毎回の材料になります。</p>
+
+  <div class="codewrap">
+    <div class="codebar"><span class="fname">② 所見マニュアルをつくる（1回だけ）</span><button class="copy-btn">コピー</button></div>
+    <pre><code>これから、所見の書き方についての資料を貼ります。
+読んだうえで、実際に書くときに使えるマニュアルにまとめてください。
+
+・してよいこと／してはいけないこと
+・3つの柱（知識・技能／思考・判断・表現／主体的に学習に取り組む態度）の書き分け
+・避けるべき表現
+
+こちらも、別のAIに読ませてそのまま使える形にしてください。
+
+---（ここに校内の所見の手引き等を貼る）---</code></pre>
+  </div>
+
+  <div class="codewrap">
+    <div class="codebar"><span class="fname">③ 本番（会話のたびに、①②を冒頭に貼ってから）</span><button class="copy-btn">コピー</button></div>
+    <pre><code>【文体仕様書】
+---（①の出力をここに貼る）---
+
+【所見マニュアル】
+---（②の出力をここに貼る）---
+
+上の2つに従って、次の子どもの所見の叩き台を書いてください。
+
+・3つの柱のうち、記録がある柱だけを書く（ない柱は無理に書かない）
+・1人あたり150字以内
+・断定しすぎない。事実と、そこから見える成長だけを書く
+
+【子どもの記録】
+1番　9月の運動会でリレーの並び順を提案した。9月の理科でグループの記録係。
+2番　……</code></pre>
+  </div>
+
+  <div class="note">
+    <strong>子どもの記録は、出席番号か仮名にしてから貼ってください。</strong>実名は渡しません。そして、<strong>御市のルールが前多の学校のやり方より先です</strong>。業務利用が認められているサービスを、学校のアカウントで。迷ったら管理職に確認してからにしてください。<br>
+    出てきたものは<strong>叩き台</strong>です。最終形にするのは人間の仕事——「判断は、渡さない」のほうに入ります。
+  </div>
+
+  <h3 style="font-size:1.05rem;margin:26px 0 8px">その「毎回貼るのがめんどくさい」が、合図です</h3>
+  <p class="what">3回くらい同じことを頼んだあたりで、貼るのが面倒になります。そうしたら、①②で保存した文章を<strong>カスタム指示に移してください</strong>。Gemini の「Gem」、ChatGPT の「GPTs」、Copilot の「エージェント」——呼び方は違いますが、同じ役割の機能です。そこまで行けば、ノートブックとほぼ同じ状態になります。</p>
+  <p class="what" style="margin-bottom:0">これが、自分専用AIの作り方の全部です。<strong>白紙と戦ってプロンプトを設計しようとすると止まります。</strong>チャットで往復して、うまくいったやり方が固まってから、それをカスタム指示に翻訳する。順番が逆だと、作れません。</p>
+</section>
+
+<section class="step">
+  <h2>実演2の「枚方でやるなら」——集計は、関数を書く仕事ではありません</h2>
+  <p class="what">お見せしたのは GAS です。御市では動きません。でも、見ていただいたのは仕組みではなく<strong>発注の仕方</strong>でした。発注の仕方は、道具が変わっても効きます。</p>
+
+  <div class="codewrap">
+    <div class="codebar"><span class="fname">数え直しをやめる（ExcelでもスプレッドシートでもOK）</span><button class="copy-btn">コピー</button></div>
+    <pre><code>スプレッドシートの回答シートで、B列に4つの選択肢（とても楽しい／楽しい／ふつう／つらい）が入っています。
+選択肢ごとの件数を出す式を書いてください。
+あわせて、その件数を割合（%）にする式も書いてください。
+
+式だけでなく、どのセルに貼ればよいかも書いてください。</code></pre>
+  </div>
+
+  <div class="codewrap">
+    <div class="codebar"><span class="fname">「話したい」に手を挙げた子だけを拾う</span><button class="copy-btn">コピー</button></div>
+    <pre><code>同じシートで、D列が「はい」の行だけ、A列（出席番号）を縦に並べる式を書いてください。
+回答が増えたら自動で増える形にしてください。</code></pre>
+  </div>
+
+  <ul class="checks">
+    <li><strong>毎日自動で届く部分が使えないなら、届けるのをやめて取りに行きます。</strong>集計シートを1枚だけ作って、朝いちで開く導線に置く。これで十分です。</li>
+    <li><strong>落とすのは「自動化」ではなく「数え直しの手作業」。</strong>VBAが使えないことは、前提にしてしまって構いません。</li>
+    <li>発注文に入れるのは3つだけ ——<strong>①何が欲しいか ②材料はどこにあるか ③いつ動いてほしいか</strong>。</li>
+  </ul>
+  <p class="what" style="margin-bottom:0"><strong>制限されているのはツールであって、発注の仕方ではありません。</strong></p>
+</section>
+
+<section class="step">
+  <h2>管理職に説明するための1枚</h2>
+  <p class="what">推進役の先生がいちばん困るのは、操作ではなく「上に説明する言葉がない」ところだと思っています。説得の言葉ではなく、<strong>引用だけを並べた1枚</strong>を置いておきます。「これは前多が言っていることではなく、国が公式に決めていることです」と言える形にしてあります。</p>
+  <p style="margin:0 0 6px"><a class="btnlink" href="kanrishoku.html">管理職に見せる1枚を開く</a></p>
+</section>
+
+<section class="step">
+  <h2>周りを巻き込むときの3つ</h2>
+  <ul class="checks">
+    <li><strong>まず、あなたが楽になってください。</strong>学校には、便利な仕組みを公式業務として維持する仕組みがありません。あるのは作った人の善意だけです。だから全体展開が先ではなく、徹底的に個人仕様で自分を救うのが先。<strong>定時で帰る人が一人生まれることが、いちばん静かで強い普及活動</strong>です。</li>
+    <li><strong>モチベーションの差は埋めません。埋めるのは「めんどくさい」。</strong>「めんどくさい」は業務改善のアンテナです。苦手な先生ほど感度が高い。配るのは手順ではなく、この一言でいいと思っています。</li>
+    <li><strong>「誰でもできる仕組み」は、先に作ると誰も使いません。</strong>1人が自分用に作って回り始めたものだけが、仕組みにする価値を持ちます。仕組み化は成功の後始末であって、導入の入口ではありません。</li>
+  </ul>
+  <div class="note">
+    <strong>「プロンプトって命令ですよね。機械に命令なんかしません」と言われたら。</strong><br>
+    「命令じゃなくて、相談です」「下書きを頼んでいるだけです」と言い換えてみてください。言葉が壁になっているだけ、ということは意外と多いです。
+  </div>
+</section>
+
+<section class="step">
+  <h2>子どもの端末のルール（ご質問1の続き）</h2>
+  <ul class="checks">
+    <li><strong>うちの学校でも遊びます。</strong>先進的だから遊ばないのではありません。</li>
+    <li>遊ぶ原因の多くは端末ではなく、<strong>授業デザインと学級経営</strong>です。手が空いた時間があるから遊ぶ。端末を取り上げても、手が空いている事実は残ります。</li>
+    <li>禁止で消えるのは<strong>練習の機会</strong>です。問題のほうは、監視の届かないところに潜るだけです。</li>
+    <li>代案は<strong>教習所モデル</strong>。使わせて、失敗させて、学ばせる。そして<strong>ルールは子ども自身に作らせる</strong>。「守れなかったらどうするか」まで決めさせます。大人が作ったルールは破る対象になりますが、自分たちで作ったルールは守る対象になります。</li>
+    <li>制限をかけるな、とは言いません。ただし<strong>制限は目的ではなく、練習期間の補助輪</strong>です。「いつ外すか」を言わない制限は、そのまま永久化します。</li>
+  </ul>
+</section>
+
+<section class="step">
+  <h2>今日のスライド（PDF）</h2>
+  <p class="what">当日お見せしたものをそのまま置いておきます。見返したいところだけ、あとから開いてください。</p>
+  <p style="margin:0 0 6px"><a class="btnlink" href="assets/hirakata20260916_slides.pdf" target="_blank" rel="noopener">スライドを見る（PDF・25枚）</a></p>
+</section>
+
+<section class="step">
+  <h2>振り返りを、一言だけ</h2>
+  <p class="what">「スーパー記録くん」という自作アプリです。<strong>打ってもいいですし、話すだけでもかまいません。</strong>一言で結構です。次にお話しするときの材料にさせてください。</p>
+  <p style="margin:0 0 6px"><a class="btnlink" href="https://johnnymaeta.github.io/kirokukunneo/" target="_blank" rel="noopener">振り返りを送る（スーパー記録くん）</a></p>
+  <ul class="checks">
+    <li>明日やってみようと思ったことを1つ</li>
+    <li><strong>「これは無理だ」と思ったところ</strong>（ここがいちばん知りたいです）</li>
+    <li>そのほか、なんでも</li>
+  </ul>
+  <p class="what" style="margin-bottom:0">「テキスト」を選ぶといちばん手軽です。音声で話したいときは「音声録音」を選んでください。</p>
+</section>
+
+<div class="cta">
+  <p style="margin-top:0"><strong>本と、研修のこと</strong></p>
+  <p>今日の話の土台は、Kindleで出している2冊です。<strong>『その書類、AIの60点から始めませんか』</strong>（実演1の所見の話）と、<strong>『コードを1文字も書かない校務自動化』</strong>（実演2の発注文の話）。どちらもKindle Unlimitedの対象です。</p>
+  <p><a class="btnlink ghost" href="https://link.amazon/B00VoIrzV" target="_blank" rel="noopener">Amazon著者ページ</a>
+     <a class="btnlink ghost" href="https://www.youtube.com/@maetaict" target="_blank" rel="noopener">YouTube（毎日19時・3分）</a>
+     <a class="btnlink ghost" href="https://bit.ly/maeta-kenshu" target="_blank" rel="noopener">研修・講演のメニュー表</a></p>
+  <p style="margin-bottom:0">今日はありがとうございました。<strong>明日、裏方仕事をひとつだけAIに渡してみてください。学校経営方針のPDF1本で構いません。</strong></p>
+</div>
+
+<footer class="page">
+  枚方市教育研究会 業務改善班 オンライン講演（2026年9月16日）／前多昌顕<br>
+  このページのURL: <code>bit.ly/hirakata0916</code>
+</footer>
+
+</div>
+<script>
+  document.querySelectorAll('.copy-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const code = btn.closest('.codewrap').querySelector('code').innerText;
+      navigator.clipboard.writeText(code).then(() => {
+        const original = btn.textContent;
+        btn.textContent = 'コピーしました';
+        btn.classList.add('done');
+        setTimeout(() => { btn.textContent = original; btn.classList.remove('done'); }, 1600);
+      });
+    });
+  });
+</script>
+</body>
+</html>
